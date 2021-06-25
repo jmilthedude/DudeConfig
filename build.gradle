@@ -1,0 +1,14 @@
+plugins {
+    id 'java-library'
+}
+
+group 'net.thedudemc'
+version '0.1'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.google.code.gson:gson:2.8.6'
+}
