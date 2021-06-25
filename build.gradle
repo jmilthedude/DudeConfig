@@ -4,7 +4,6 @@ plugins {
 }
 
 group 'com.github.jmilthedude'
-version '0.1'
 
 repositories {
     mavenCentral()
