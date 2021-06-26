@@ -1,4 +1,4 @@
-package option;
+package net.thedudemc.dudeconfig.option;
 
 public class LongValue extends Option<Long> {
     public LongValue(Long value) {

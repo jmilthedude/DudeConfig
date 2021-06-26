@@ -1,4 +1,4 @@
-package option;
+package net.thedudemc.dudeconfig.option;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package option;
+package net.thedudemc.dudeconfig.option;
 
 public class StringValue extends Option<String> {
     public StringValue(String value) {

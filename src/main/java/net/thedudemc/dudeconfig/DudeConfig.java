@@ -1,3 +1,5 @@
+package net.thedudemc.dudeconfig;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
