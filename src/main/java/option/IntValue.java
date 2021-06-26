@@ -1,4 +1,4 @@
-package net.thedudemc.dudeconfig.option;
+package option;
 
 public class IntValue extends Option<Integer> {
     public IntValue(Integer value) {

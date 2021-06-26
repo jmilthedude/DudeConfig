@@ -1,4 +1,4 @@
-package net.thedudemc.dudeconfig.option;
+package option;
 
 import java.util.Map;
 

@@ -1,4 +1,4 @@
-package net.thedudemc.dudeconfig.option;
+package option;
 
 public class BooleanValue extends Option<Boolean> {
     public BooleanValue(Boolean value) {

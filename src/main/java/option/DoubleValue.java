@@ -1,4 +1,4 @@
-package net.thedudemc.dudeconfig.option;
+package option;
 
 public class DoubleValue extends Option<Double> {
     public DoubleValue(Double value) {
