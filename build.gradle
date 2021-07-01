@@ -1,8 +1,11 @@
 plugins {
     id 'java'
+    id 'signing'
+    id 'maven-publish'
 }
 
 group 'net.thedudemc'
+archivesBaseName = 'DudeConfig'
 version '0.1'
 
 repositories {
@@ -11,4 +14,71 @@ repositories {
 
 dependencies {
     implementation 'com.google.code.gson:gson:2.8.6'
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+
+            pom {
+                name = 'DudeConfig'
+                artifactId = 'dudeconfig'
+                packaging = 'jar'
+                description = 'General configuration library.'
+                url = 'https://github.com/jmilthedude/DudeConfig'
+
+                scm {
+                    connection = 'scm:git:git://github.com/jmilthedude/DudeConfig.git'
+                    developerConnection = 'scm:git:ssh://github.com/jmilthedude/DudeConfig.git'
+                    url = 'https://github.com/jmilthedude/DudeConfig'
+                }
+
+                licenses {
+                    license {
+                        name = 'GPL-3.0'
+                        url = 'https://www.gnu.org/licenses/gpl-3.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'jmilthedude'
+                        name = 'Justin Miller'
+                        email = 'jmilthedude@gmail.com'
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = "ossrh"
+            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username = findProperty('ossrhUsername')
+                password = findProperty('ossrhPassword')
+            }
+        }
+    }
+
+}
+
+signing {
+    sign publishing.publications.mavenJava
 }
