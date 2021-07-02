@@ -2,7 +2,8 @@ package net.thedudemc.dudeconfig.option;
 
 import com.google.gson.annotations.Expose;
 
-public abstract class Option<T> {
+public class Option<T> {
+
     @Expose protected T value;
     @Expose protected String comment;
 
@@ -10,7 +11,14 @@ public abstract class Option<T> {
         this.value = value;
     }
 
-    public abstract Option<T> withComment(String comment);
+    public Option<T> withComment(String comment) {
+        this.comment = comment;
+        return this;
+    }
+
+    public static Option<?> of(Object value) {
+        return new Option<>(value);
+    }
 
     public T getValue() {
         return value;
