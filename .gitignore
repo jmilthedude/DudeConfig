@@ -33,3 +33,4 @@
 *.ipr
 *.iws
 .idea/
+/config/
