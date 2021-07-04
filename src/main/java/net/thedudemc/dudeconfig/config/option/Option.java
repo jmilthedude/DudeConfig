@@ -1,4 +1,4 @@
-package net.thedudemc.dudeconfig.option;
+package net.thedudemc.dudeconfig.config.option;
 
 import com.google.gson.annotations.Expose;
 

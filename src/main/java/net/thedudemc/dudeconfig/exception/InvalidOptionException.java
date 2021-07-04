@@ -1,20 +1,26 @@
 package net.thedudemc.dudeconfig.exception;
 
-import java.lang.reflect.Type;
-
 public class InvalidOptionException extends RuntimeException {
 
-    private final String key;
-    private final String type;
+    private String key;
+    private String expectedType;
+    private String actualType;
 
-    public InvalidOptionException(String key, String type) {
+    public InvalidOptionException(String expectedType, String actualType) {
+        this.expectedType = expectedType;
+        this.actualType = actualType;
+    }
+
+    public InvalidOptionException(String key) {
         this.key = key;
-        this.type = type;
     }
 
     @Override
     public String getMessage() {
-        return "Invalid type (attempted:" + type + ") or no value with the key: " + key;
+        if (expectedType == null || actualType == null) {
+            return "No option found: " + key;
+        }
+        return "Invalid type: expected type=" + this.expectedType + " - actual type=" + this.actualType;
     }
 
 }
