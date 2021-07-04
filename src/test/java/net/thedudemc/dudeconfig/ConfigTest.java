@@ -7,27 +7,28 @@ import net.thedudemc.dudeconfig.examples.TestConfig;
 
 public class ConfigTest {
 
-    private static boolean running = true;
-
     public static void main(String[] args) {
+        ConfigRegistry configRegistry = new ConfigRegistry("./test/MyAppConfigs");
+        ConfigRegistry anotherRegistry = new ConfigRegistry("./test/OtherConfigs");
 
-        ConfigRegistry.register(new TestConfig().read());
-        ConfigRegistry.register(new AnotherConfig().read());
+        configRegistry.register(new TestConfig());
+        configRegistry.register(new AnotherConfig());
 
+        anotherRegistry.register(new AnotherConfig());
         try {
-            Config someConfig = ConfigRegistry.getConfig("someConfig"); // this will throw an exception
+            Config someConfig = configRegistry.getConfig("someConfig"); // this will throw an exception
         } catch (Exception e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
         }
 
-        Config config = ConfigRegistry.getConfig("testConfig");
+        Config config = configRegistry.getConfig("testConfig");
 
         long someLong = config.getLong("someLong");
 
         System.out.println("testConfig.someLong: " + someLong);
 
-        ConfigRegistry.getConfig("anotherConfig").printOptions();
+        configRegistry.getConfig("anotherConfig").printOptions();
     }
 
 }

@@ -34,3 +34,4 @@
 *.iws
 .idea/
 /config/
+/test/
