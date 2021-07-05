@@ -40,6 +40,9 @@ public class ConfigTest {
         config.save(configRegistry.getRootDir());
 
         System.out.println("testConfig.someLong (after): " + config.getLong("someLong"));
+
+        // test a ranged option
+        System.out.println("testConfig.someRangedOption: " + config.getDouble("someRangedOption"));
     }
 
 }

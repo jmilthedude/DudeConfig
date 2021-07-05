@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import net.thedudemc.dudeconfig.config.option.Option;
+import net.thedudemc.dudeconfig.config.option.OptionMap;
 import net.thedudemc.dudeconfig.exception.InvalidOptionException;
 
 import java.io.*;
@@ -17,7 +18,7 @@ public abstract class Config {
     protected String extension = ".json";
     private boolean isDirty;
 
-    @Expose private HashMap<String, Option<?>> options = new HashMap<>();
+    @Expose private OptionMap options = OptionMap.create();
 
     public abstract String getName();
 
@@ -55,6 +56,7 @@ public abstract class Config {
                     }
                 }
             }
+            config.options.forEach((k, v) -> v.validateRange());
 
             config.markDirty();
             config.save(rootDir);
@@ -96,9 +98,7 @@ public abstract class Config {
 
     /* --------------------------------------------------------------------- */
 
-    public HashMap<String, Option<?>> getDefaults() {
-        return new HashMap<>();
-    }
+    public abstract OptionMap getDefaults();
 
     public void putString(String name, String value) {
         options.put(name, Option.of(value));
@@ -208,8 +208,18 @@ public abstract class Config {
 
     public double getDouble(String name) {
         Option<?> option = getOption(name);
-        if (option.getValue() instanceof Double) {
+        if (option.getValue() instanceof Double || option.getValue() instanceof Float) {
             return (double) option.getValue();
+        }
+        throw new InvalidOptionException(Double.class.getSimpleName(), option.getValue().getClass().getSimpleName());
+    }
+
+    public double getFloat(String name) {
+        Option<?> option = getOption(name);
+        if (option.getValue() instanceof Double || option.getValue() instanceof Float) {
+            if ((double) option.getValue() > Float.MAX_VALUE)
+                throw new InvalidOptionException(Float.class.getSimpleName(), Double.class.getSimpleName());
+            return (float) option.getValue();
         }
         throw new InvalidOptionException(Double.class.getSimpleName(), option.getValue().getClass().getSimpleName());
     }
