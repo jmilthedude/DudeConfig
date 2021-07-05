@@ -24,7 +24,6 @@ public class ConfigTest {
             Config someConfig = configRegistry.getConfig("someConfig");
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            e.printStackTrace();
         }
 
 
@@ -42,7 +41,13 @@ public class ConfigTest {
         System.out.println("testConfig.someLong (after): " + config.getLong("someLong"));
 
         // test a ranged option
-        System.out.println("testConfig.someRangedOption: " + config.getDouble("someRangedOption"));
+        System.out.println("testConfig.someRangedOption: " + config.getFloat("someRangedOption"));
+
+        // test a map option.
+        System.out.println("someMap.something: " + config.getMap("someMap").get("something"));
+
+        // test a list option
+        System.out.println("someList.index(0): " + config.getList("someList").get(0));
     }
 
 }
