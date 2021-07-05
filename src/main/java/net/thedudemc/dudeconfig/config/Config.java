@@ -18,7 +18,8 @@ public abstract class Config {
     protected String extension = ".json";
     private boolean isDirty;
 
-    @Expose private OptionMap options = OptionMap.create();
+    @Expose
+    private OptionMap options = OptionMap.create();
 
     public abstract String getName();
 
@@ -223,5 +224,20 @@ public abstract class Config {
             return (float) option.getValue();
         }
         throw new InvalidOptionException(Double.class.getSimpleName(), option.getValue().getClass().getSimpleName());
+    }
+
+    public boolean getBoolean(String name) {
+        Option<?> option = getOption(name);
+        if (option.getValue() instanceof Boolean) return (boolean) option.getValue();
+
+        if (option.getValue() instanceof Number) {
+            Number value = (Number) option.getValue();
+            return value.intValue() == 1;
+        } else if (option.getValue() instanceof String) {
+            String value = (String) option.getValue();
+            return "true".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value);
+        }
+
+        return false;
     }
 }
