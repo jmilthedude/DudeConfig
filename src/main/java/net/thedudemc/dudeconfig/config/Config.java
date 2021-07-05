@@ -9,17 +9,15 @@ import net.thedudemc.dudeconfig.exception.InvalidOptionException;
 import java.io.*;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class Config {
 
     private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
-    protected String root = "config/";
     protected String extension = ".json";
     private boolean isDirty;
 
-    @Expose private final HashMap<String, Option<?>> options = new HashMap<>();
-
-    protected abstract void initialize();
+    @Expose private HashMap<String, Option<?>> options = new HashMap<>();
 
     public abstract String getName();
 
@@ -31,45 +29,58 @@ public abstract class Config {
         return this.isDirty;
     }
 
-    public void generate() {
-        this.initialize();
+    public void generate(File rootDir) {
+        this.options = getDefaults();
 
         try {
-            this.writeToFile();
+            this.writeToFile(rootDir);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private File getConfigFile() {
-        return new File(this.root + this.getName() + this.extension);
+    private File getConfigFile(File rootDir) {
+        return new File(rootDir, this.getName() + this.extension);
     }
 
-    public Config read() {
+    public Config read(File rootDir) {
         try {
-            return GSON.fromJson(new FileReader(this.getConfigFile()), this.getClass());
+            Config config = GSON.fromJson(new FileReader(this.getConfigFile(rootDir)), this.getClass());
+
+            HashMap<String, Option<?>> defaults = getDefaults();
+            if (defaults != null) {
+                for (Map.Entry<String, Option<?>> entry : defaults.entrySet()) {
+                    if (!config.options.containsKey(entry.getKey())) {
+                        config.options.put(entry.getKey(), entry.getValue());
+                    }
+                }
+            }
+
+            config.markDirty();
+            config.save(rootDir);
+
+            return config;
         } catch (FileNotFoundException e) {
-            this.generate();
+            this.generate(rootDir);
         }
 
         return this;
     }
 
 
-    private void writeToFile() throws IOException {
-        File dir = new File(this.root);
-        if (!dir.exists() && !dir.mkdirs()) return;
-        if (!this.getConfigFile().exists() && !this.getConfigFile().createNewFile()) return;
-        FileWriter writer = new FileWriter(this.getConfigFile());
+    private void writeToFile(File rootDir) throws IOException {
+        if (!rootDir.exists() && !rootDir.mkdirs()) return;
+        if (!this.getConfigFile(rootDir).exists() && !this.getConfigFile(rootDir).createNewFile()) return;
+        FileWriter writer = new FileWriter(this.getConfigFile(rootDir));
         GSON.toJson(this, writer);
         writer.flush();
         writer.close();
     }
 
-    public void save() {
+    public void save(File rootDir) {
         if (this.isDirty) {
             try {
-                this.writeToFile();
+                this.writeToFile(rootDir);
                 this.isDirty = false;
             } catch (IOException e) {
                 e.printStackTrace();
@@ -85,60 +96,78 @@ public abstract class Config {
 
     /* --------------------------------------------------------------------- */
 
+    public HashMap<String, Option<?>> getDefaults() {
+        return new HashMap<>();
+    }
+
     public void putString(String name, String value) {
         options.put(name, Option.of(value));
+        this.markDirty();
     }
 
     public void putInt(String name, int value) {
         options.put(name, Option.of(value));
+        this.markDirty();
     }
 
     public void putLong(String name, long value) {
         options.put(name, Option.of(value));
+        this.markDirty();
     }
 
     public void putDouble(String name, double value) {
         options.put(name, Option.of(value));
+        this.markDirty();
     }
 
     public void putFloat(String name, float value) {
         options.put(name, Option.of(value));
+        this.markDirty();
     }
 
     public void putBoolean(String name, boolean value) {
         options.put(name, Option.of(value));
+        this.markDirty();
     }
 
     public void putObject(String name, Object value) {
         options.put(name, Option.of(value));
+        this.markDirty();
     }
 
     public void putStringList(String name, List<String> value) {
         options.put(name, Option.of(value));
+        this.markDirty();
     }
 
     public void putIntList(String name, List<Integer> value) {
         options.put(name, Option.of(value));
+        this.markDirty();
     }
 
     public void putLongList(String name, List<Long> value) {
         options.put(name, Option.of(value));
+        this.markDirty();
     }
 
     public void putDoubleList(String name, List<Double> value) {
         options.put(name, Option.of(value));
+        this.markDirty();
     }
 
     public void putFloatList(String name, List<Float> value) {
         options.put(name, Option.of(value));
+        this.markDirty();
     }
 
     public void putBooleanList(String name, List<Boolean> value) {
         options.put(name, Option.of(value));
+        this.markDirty();
     }
 
     public void putObjectList(String name, List<?> value) {
         options.put(name, Option.of(value));
+        this.markDirty();
     }
 
     private Option<?> getOption(String name) {
