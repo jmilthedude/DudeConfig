@@ -56,6 +56,7 @@ public abstract class Config {
                     }
                 }
             }
+
             config.options.forEach((k, v) -> v.validateRange());
 
             config.markDirty();

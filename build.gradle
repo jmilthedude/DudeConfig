@@ -6,7 +6,7 @@ plugins {
 
 group 'net.thedudemc'
 archivesBaseName = 'DudeConfig'
-version '0.4'
+version '0.4-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -74,9 +74,19 @@ publishing {
         }
     }
     repositories {
+//        maven {
+//            name = "ossrh"
+//            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+//            credentials {
+//                username = findProperty('ossrhUsername')
+//                password = findProperty('ossrhPassword')
+//            }
+//        }
+        // Uncomment this only if your version ends with -SNAPSHOT, you'll get a 400 otherwhise.
+
         maven {
-            name = "ossrh"
-            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            name = "ossrhSnapshot"
+            url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
             credentials {
                 username = findProperty('ossrhUsername')
                 password = findProperty('ossrhPassword')
