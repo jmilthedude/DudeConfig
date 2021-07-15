@@ -3,6 +3,7 @@ package net.thedudemc.dudeconfig.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
+import com.google.gson.internal.LinkedTreeMap;
 import net.thedudemc.dudeconfig.config.option.Option;
 import net.thedudemc.dudeconfig.config.option.OptionMap;
 import net.thedudemc.dudeconfig.exception.InvalidOptionException;
@@ -18,7 +19,8 @@ public abstract class Config {
     protected String extension = ".json";
     private boolean isDirty;
 
-    @Expose private OptionMap options = OptionMap.create();
+    @Expose
+    private OptionMap options = OptionMap.create();
 
     public abstract String getName();
 
@@ -57,7 +59,16 @@ public abstract class Config {
                 }
             }
 
-            config.options.forEach((k, v) -> v.validateRange());
+            config.options.forEach((k, v) -> {
+                v.validateRange(); // if option has range, validate it.
+
+                // here we will convert a gson map to a hashmap
+                if (v.getValue() instanceof LinkedTreeMap) {
+                    LinkedTreeMap<?, ?> map = (LinkedTreeMap<?, ?>) v.getValue();
+                    HashMap<?, ?> temp = new HashMap<>(map);
+                    config.options.put(k, Option.of(temp));
+                }
+            });
 
             config.markDirty();
             config.save(rootDir);
@@ -215,13 +226,45 @@ public abstract class Config {
         throw new InvalidOptionException(Double.class.getSimpleName(), option.getValue().getClass().getSimpleName());
     }
 
-    public double getFloat(String name) {
+    public float getFloat(String name) {
         Option<?> option = getOption(name);
-        if (option.getValue() instanceof Double || option.getValue() instanceof Float) {
-            if ((double) option.getValue() > Float.MAX_VALUE)
+        if (option.getValue() instanceof Float) return (float) option.getValue();
+        if (option.getValue() instanceof Double) {
+            if ((Double) option.getValue() > Float.MAX_VALUE)
                 throw new InvalidOptionException(Float.class.getSimpleName(), Double.class.getSimpleName());
-            return (float) option.getValue();
+            return ((Double) option.getValue()).floatValue();
         }
         throw new InvalidOptionException(Double.class.getSimpleName(), option.getValue().getClass().getSimpleName());
+    }
+
+    public boolean getBoolean(String name) {
+        Option<?> option = getOption(name);
+        if (option.getValue() instanceof Boolean) return (boolean) option.getValue();
+
+        if (option.getValue() instanceof Number) {
+            Number value = (Number) option.getValue();
+            return value.intValue() == 1;
+        } else if (option.getValue() instanceof String) {
+            String value = (String) option.getValue();
+            return "true".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value);
+        }
+
+        return false;
+    }
+
+    public HashMap<?, ?> getMap(String name) {
+        Option<?> option = getOption(name);
+        if (option.getValue() instanceof Map) {
+            return (HashMap<?, ?>) option.getValue();
+        }
+        throw new InvalidOptionException(HashMap.class.getSimpleName(), option.getValue().getClass().getSimpleName());
+    }
+
+    public List<?> getList(String name) {
+        Option<?> option = getOption(name);
+        if (option.getValue() instanceof List) {
+            return (List<?>) option.getValue();
+        }
+        throw new InvalidOptionException(List.class.getSimpleName(), option.getValue().getClass().getSimpleName());
     }
 }
