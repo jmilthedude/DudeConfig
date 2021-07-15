@@ -1,6 +1,7 @@
 package net.thedudemc.dudeconfig.config;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -25,6 +26,10 @@ public class ConfigRegistry {
         File rootDir = getRootDir();
 
         REGISTRY.put(config.getName(), config.read(rootDir));
+    }
+
+    public Collection<Config> getAll() {
+        return this.REGISTRY.values();
     }
 
     public Config getConfig(String name) {
