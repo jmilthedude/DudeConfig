@@ -182,7 +182,7 @@ public abstract class Config {
         this.markDirty();
     }
 
-    private Option<?> getOption(String name) {
+    public Option<?> getOption(String name) {
         if (options.get(name) == null) throw new InvalidOptionException(name);
 
         return options.get(name);
