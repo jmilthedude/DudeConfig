@@ -2,6 +2,7 @@ package net.thedudemc.dudeconfig;
 
 import net.thedudemc.dudeconfig.config.Config;
 import net.thedudemc.dudeconfig.config.ConfigRegistry;
+import net.thedudemc.dudeconfig.config.option.Option;
 import net.thedudemc.dudeconfig.examples.AnotherConfig;
 import net.thedudemc.dudeconfig.examples.TestConfig;
 
@@ -48,6 +49,11 @@ public class ConfigTest {
 
         // test a list option
         System.out.println("someList.index(0): " + config.getList("someList").get(0));
+
+        config.setOption("someLong", Option.of(1234L).withComment(config.getOption("someLong").getComment()));
+
+
+        System.out.println("testConfig.someLong (after again): " + config.getLong("someLong"));
     }
 
 }

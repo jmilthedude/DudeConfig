@@ -63,6 +63,10 @@ public class Option<T> {
         return max;
     }
 
+    public void setValue(T value) {
+        this.value = value;
+    }
+
 
     public String getComment() {
         return this.comment;

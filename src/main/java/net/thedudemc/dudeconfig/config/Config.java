@@ -112,6 +112,11 @@ public abstract class Config {
 
     public abstract OptionMap getDefaults();
 
+    public void setOption(String name, Option<?> option) {
+        options.put(name, option);
+        this.markDirty();
+    }
+
     public void putString(String name, String value) {
         options.put(name, Option.of(value));
         this.markDirty();
