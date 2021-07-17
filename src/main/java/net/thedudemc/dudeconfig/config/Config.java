@@ -7,6 +7,7 @@ import com.google.gson.internal.LinkedTreeMap;
 import net.thedudemc.dudeconfig.config.option.Option;
 import net.thedudemc.dudeconfig.config.option.OptionMap;
 import net.thedudemc.dudeconfig.exception.InvalidOptionException;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.util.HashMap;
@@ -112,8 +113,8 @@ public abstract class Config {
 
     public abstract OptionMap getDefaults();
 
-    public void setOption(String name, Option<?> option) {
-        options.put(name, option);
+    public void setOption(String name, @Nullable Option<?> option, Object newValue) {
+        options.put(name, Option.of(newValue).withComment(option == null ? null : option.getComment()));
         this.markDirty();
     }
 

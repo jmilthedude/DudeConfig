@@ -2,7 +2,6 @@ package net.thedudemc.dudeconfig;
 
 import net.thedudemc.dudeconfig.config.Config;
 import net.thedudemc.dudeconfig.config.ConfigRegistry;
-import net.thedudemc.dudeconfig.config.option.Option;
 import net.thedudemc.dudeconfig.examples.AnotherConfig;
 import net.thedudemc.dudeconfig.examples.TestConfig;
 
@@ -35,9 +34,8 @@ public class ConfigTest {
 
         System.out.println("testConfig.someLong (before): " + config.getLong("someLong"));
 
-        config.putLong("someLong", 666L);
-        config.putString("tryThis", "This is a string added later after instantiation.");
-        config.save(configRegistry.getRootDir());
+        config.setOption("someLong", config.getOption("someLong"), 666L);
+        config.setOption("tryThis", null, "This is another string added later.");
 
         System.out.println("testConfig.someLong (after): " + config.getLong("someLong"));
 
@@ -50,10 +48,13 @@ public class ConfigTest {
         // test a list option
         System.out.println("someList.index(0): " + config.getList("someList").get(0));
 
-        config.setOption("someLong", Option.of(1234L).withComment(config.getOption("someLong").getComment()));
-
+        config.setOption("someLong", config.getOption("someLong"), 8675309L);
 
         System.out.println("testConfig.someLong (after again): " + config.getLong("someLong"));
+
+        configRegistry.saveAll();
+
+
     }
 
 }
