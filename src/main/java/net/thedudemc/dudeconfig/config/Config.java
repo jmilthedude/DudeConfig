@@ -19,6 +19,7 @@ public abstract class Config {
     private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
     protected String extension = ".json";
     private boolean isDirty;
+    private File rootDir;
 
     @Expose
     private OptionMap options = OptionMap.create();
@@ -33,23 +34,27 @@ public abstract class Config {
         return this.isDirty;
     }
 
-    public void generate(File rootDir) {
+    public void generate() {
         this.options = getDefaults();
 
         try {
-            this.writeToFile(rootDir);
+            this.writeToFile();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private File getConfigFile(File rootDir) {
-        return new File(rootDir, this.getName() + this.extension);
+    private File getConfigFile() {
+        return new File(this.rootDir, this.getName() + this.extension);
     }
 
-    public Config read(File rootDir) {
+    public void setRootDirectory(File rootDir) {
+        this.rootDir = rootDir;
+    }
+
+    public Config read() {
         try {
-            Config config = GSON.fromJson(new FileReader(this.getConfigFile(rootDir)), this.getClass());
+            Config config = GSON.fromJson(new FileReader(this.getConfigFile()), this.getClass());
 
             HashMap<String, Option<?>> defaults = getDefaults();
             if (defaults != null) {
@@ -72,30 +77,30 @@ public abstract class Config {
             });
 
             config.markDirty();
-            config.save(rootDir);
+            config.save();
 
             return config;
         } catch (FileNotFoundException e) {
-            this.generate(rootDir);
+            this.generate();
         }
 
         return this;
     }
 
 
-    private void writeToFile(File rootDir) throws IOException {
-        if (!rootDir.exists() && !rootDir.mkdirs()) return;
-        if (!this.getConfigFile(rootDir).exists() && !this.getConfigFile(rootDir).createNewFile()) return;
-        FileWriter writer = new FileWriter(this.getConfigFile(rootDir));
+    private void writeToFile() throws IOException {
+        if (!this.rootDir.exists() && !this.rootDir.mkdirs()) return;
+        if (!this.getConfigFile().exists() && !this.getConfigFile().createNewFile()) return;
+        FileWriter writer = new FileWriter(this.getConfigFile());
         GSON.toJson(this, writer);
         writer.flush();
         writer.close();
     }
 
-    public void save(File rootDir) {
+    public void save() {
         if (this.isDirty) {
             try {
-                this.writeToFile(rootDir);
+                this.writeToFile();
                 this.isDirty = false;
             } catch (IOException e) {
                 e.printStackTrace();
@@ -273,4 +278,5 @@ public abstract class Config {
         }
         throw new InvalidOptionException(List.class.getSimpleName(), option.getValue().getClass().getSimpleName());
     }
+
 }

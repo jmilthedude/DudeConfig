@@ -52,7 +52,7 @@ public class ConfigTest {
 
         System.out.println("testConfig.someLong (after again): " + config.getLong("someLong"));
 
-        configRegistry.saveAll();
+        config.save();
 
 
     }

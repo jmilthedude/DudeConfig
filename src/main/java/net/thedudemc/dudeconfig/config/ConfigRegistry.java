@@ -23,9 +23,9 @@ public class ConfigRegistry {
             throw new IllegalArgumentException("Config with name \"" + config.getName() + "\" already exists.");
         }
 
-        File rootDir = getRootDir();
+        config.setRootDirectory(getRootDir());
 
-        REGISTRY.put(config.getName(), config.read(rootDir));
+        REGISTRY.put(config.getName(), config.read());
     }
 
     public Collection<Config> getAll() {
@@ -42,13 +42,13 @@ public class ConfigRegistry {
 
     public void saveAll() {
         for (Config config : REGISTRY.values()) {
-            config.save(getRootDir());
+            config.save();
         }
     }
 
     public void saveConfig(String name) {
         Config config = getConfig(name);
-        config.save(this.getRootDir());
+        config.save();
     }
 
     public File getRootDir() {
