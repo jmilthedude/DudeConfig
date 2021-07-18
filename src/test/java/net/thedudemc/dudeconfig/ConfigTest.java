@@ -2,8 +2,10 @@ package net.thedudemc.dudeconfig;
 
 import net.thedudemc.dudeconfig.config.Config;
 import net.thedudemc.dudeconfig.config.ConfigRegistry;
+import net.thedudemc.dudeconfig.config.option.Option;
 import net.thedudemc.dudeconfig.examples.AnotherConfig;
 import net.thedudemc.dudeconfig.examples.TestConfig;
+import net.thedudemc.dudeconfig.exception.InvalidOptionException;
 
 public class ConfigTest {
 
@@ -32,26 +34,34 @@ public class ConfigTest {
 
         config.printOptions();
 
-        System.out.println("testConfig.someLong (before): " + config.getLong("someLong"));
+        Option someLong = config.getOption("someLong");
 
-        config.setOption("someLong", config.getOption("someLong"), 666L);
-        config.setOption("tryThis", null, "This is another string added later.");
+        System.out.println("testConfig.someLong (before): " + someLong);
 
-        System.out.println("testConfig.someLong (after): " + config.getLong("someLong"));
+        someLong.setValue(666L);
+
+        System.out.println("testConfig.someLong (after): " + someLong);
 
         // test a ranged option
-        System.out.println("testConfig.someRangedOption: " + config.getFloat("someRangedOption"));
+        System.out.println("testConfig.someRangedOption: " + config.getOption("someRangedOption").getFloatValue());
 
         // test a map option.
-        System.out.println("someMap.something: " + config.getMap("someMap").get("something"));
+        System.out.println("someMap.something: " + config.getOption("someMap").getMapValue().get("something"));
 
         // test a list option
-        System.out.println("someList.index(0): " + config.getList("someList").get(0));
+        System.out.println("someList.index(0): " + config.getOption("someList").getListValue().get(0));
 
-        config.setOption("someLong", config.getOption("someLong"), 8675309L);
+        try {
+            someLong.setValue("123"); // this will throw because the original value is a long
+        } catch (InvalidOptionException exception) {
+            System.out.println(exception.getMessage());
+        }
 
-        System.out.println("testConfig.someLong (after again): " + config.getLong("someLong"));
+        someLong.setRawValue("123"); // this will work because it changes the object entirely.. Not sure why you'd want this but here it is.
 
+        System.out.println("testConfig.someLong (after again): " + config.getOption("someLong"));
+
+        config.markDirty();
         config.save();
 
 
