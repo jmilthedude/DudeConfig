@@ -76,7 +76,7 @@ public abstract class Config {
                 }
                 if (v.getValue() instanceof Double) {
                     double value = v.getDoubleValue();
-                    if (Math.floor(value) == (long) value) {
+                    if (value % 1 == 0) {
                         v.setRawValue((long) value);
                     }
                 }
