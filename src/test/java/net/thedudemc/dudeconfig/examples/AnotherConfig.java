@@ -1,7 +1,6 @@
 package net.thedudemc.dudeconfig.examples;
 
 import net.thedudemc.dudeconfig.config.Config;
-import net.thedudemc.dudeconfig.config.option.OptionMap;
 
 public class AnotherConfig extends Config {
 
@@ -11,8 +10,12 @@ public class AnotherConfig extends Config {
     }
 
     @Override
-    public OptionMap getDefaults() {
-        return OptionMap.create();
+    public void reset() {
+    }
+
+    @Override
+    protected Config getDefault() {
+        return null;
     }
 
 }

@@ -1,8 +1,8 @@
 package net.thedudemc.dudeconfig.examples;
 
+import com.google.gson.annotations.Expose;
 import net.thedudemc.dudeconfig.config.Config;
-import net.thedudemc.dudeconfig.config.option.Option;
-import net.thedudemc.dudeconfig.config.option.OptionMap;
+import net.thedudemc.dudeconfig.examples.object.SomeObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,31 +10,46 @@ import java.util.List;
 
 public class TestConfig extends Config {
 
+    @Expose private String someString;
+    @Expose private List<SomeObject> someObjects;
+
     @Override
     public String getName() {
         return "testConfig";
     }
 
     @Override
-    public OptionMap getDefaults() {
-        OptionMap options = OptionMap.create();
-        options.put("someInt", Option.of(12).withComment("This is an integer."));
-        options.put("someLong", Option.of(54323L).withComment("This is a long."));
-        options.put("someString", Option.of("This is some String").withComment("This is a String."));
-        options.put("someBoolean", Option.of(false).withComment("This is a boolean."));
-        options.put("someRangedOption", Option.of(.1f).withRange(0f, 1f).withComment("This is a test range."));
+    protected Config getDefault() {
+        TestConfig config = new TestConfig();
+        config.reset();
+        return config;
+    }
 
-        HashMap<String, Float> someMap = new HashMap<>();
-        someMap.put("something", .2f);
-        someMap.put("somethingElse", .25f);
-        options.put("someMap", Option.of(someMap).withComment("This is a map of floats."));
+    @Override
+    public void reset() {
+        someString = "Hello!";
 
-        List<String> someList = new ArrayList<>();
-        someList.add("a");
-        someList.add("b");
-        someList.add("c");
-        options.put("someList", Option.of(someList).withComment("This is a list of strings."));
+        HashMap<Integer, Integer> map = new HashMap<>();
 
-        return options;
+        map.put(1, 100);
+        map.put(2, 300);
+        map.put(3, 500);
+        map.put(4, 700);
+
+        someObjects = new ArrayList<>();
+        someObjects.add(new SomeObject("Thing1", 123, .1f, map));
+        someObjects.add(new SomeObject("Thing2", 456, .2f, null));
+        someObjects.add(new SomeObject("Thing3", 789, .3f, null));
+    }
+
+    public List<SomeObject> getSomeObjects() {
+        return someObjects;
+    }
+
+    public SomeObject getSomeObject(String name) {
+        for (SomeObject someObject : someObjects) {
+            if (name.equalsIgnoreCase(someObject.getName())) return someObject;
+        }
+        return null;
     }
 }

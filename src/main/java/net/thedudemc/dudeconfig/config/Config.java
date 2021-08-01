@@ -3,37 +3,28 @@ package net.thedudemc.dudeconfig.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
-import com.google.gson.internal.LinkedTreeMap;
-import net.thedudemc.dudeconfig.config.option.Option;
-import net.thedudemc.dudeconfig.config.option.OptionMap;
-import net.thedudemc.dudeconfig.exception.InvalidOptionException;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
 
 public abstract class Config {
 
     private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
-    protected String extension = ".json";
     private boolean isDirty;
     private File rootDir;
 
-    @Expose
-    private OptionMap options = OptionMap.create();
+    protected abstract String getName();
 
-    public abstract String getName();
+    protected abstract void reset();
+
+    protected abstract Config getDefault();
 
     public void markDirty() {
         this.isDirty = true;
     }
 
-    public boolean isDirty() {
-        return this.isDirty;
-    }
-
-    public void generate() {
-        this.options = getDefaults();
+    private void generate() {
+        this.reset();
 
         try {
             this.writeToFile();
@@ -43,10 +34,10 @@ public abstract class Config {
     }
 
     private File getConfigFile() {
-        return new File(this.rootDir, this.getName() + this.extension);
+        return new File(this.rootDir, this.getName() + ".json");
     }
 
-    public void setRootDirectory(File rootDir) {
+    protected void setRootDirectory(File rootDir) {
         this.rootDir = rootDir;
     }
 
@@ -54,43 +45,41 @@ public abstract class Config {
         try {
             Config config = GSON.fromJson(new FileReader(this.getConfigFile()), this.getClass());
 
+            Config defaultConfig = this.getDefault();
+
+            setMissingDefaults(config, defaultConfig);
+
             config.setRootDirectory(this.rootDir);
-
-            HashMap<String, Option> defaults = getDefaults();
-            if (defaults != null) {
-                for (Map.Entry<String, Option> entry : defaults.entrySet()) {
-                    if (!config.options.containsKey(entry.getKey())) {
-                        config.options.put(entry.getKey(), entry.getValue());
-                    }
-                }
-            }
-
-            config.options.forEach((k, v) -> {
-                v.validateRange(); // if option has range, validate it.
-
-                // here we will convert a gson map to a hashmap
-                if (v.getValue() instanceof LinkedTreeMap) {
-                    LinkedTreeMap<?, ?> map = (LinkedTreeMap<?, ?>) v.getValue();
-                    HashMap<?, ?> temp = new HashMap<>(map);
-                    v.setRawValue(temp);
-                }
-                if (v.getValue() instanceof Double) {
-                    double value = v.getDoubleValue();
-                    if (value % 1 == 0) {
-                        v.setRawValue((long) value);
-                    }
-                }
-            });
 
             config.markDirty();
             config.save();
 
             return config;
-        } catch (FileNotFoundException e) {
+        } catch (
+                FileNotFoundException e) {
             this.generate();
         }
 
         return this;
+    }
+
+    private void setMissingDefaults(Config config, Config defaultConfig) {
+        Arrays.stream(config.getClass().getDeclaredFields()).forEach(field -> {
+            try {
+                if (field.isAnnotationPresent(Expose.class)) {
+                    boolean access = field.canAccess(config);
+                    field.setAccessible(true);
+                    Object stored = field.get(config);
+                    Object defaultObj = field.get(defaultConfig);
+                    if (stored == null) {
+                        field.set(config, defaultObj);
+                    }
+                    field.setAccessible(access);
+                }
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
 
@@ -114,19 +103,4 @@ public abstract class Config {
         }
     }
 
-    public void printOptions() {
-        options.forEach((k, v) -> {
-            System.out.println(k + ": " + v.getValue());
-        });
-    }
-
-    /* --------------------------------------------------------------------- */
-
-    public abstract OptionMap getDefaults();
-
-    public Option getOption(String name) {
-        if (options.get(name) == null) throw new InvalidOptionException(name);
-
-        return options.get(name);
-    }
 }
