@@ -13,9 +13,4 @@ public class AnotherConfig extends Config {
     public void reset() {
     }
 
-    @Override
-    protected Config getDefault() {
-        return null;
-    }
-
 }

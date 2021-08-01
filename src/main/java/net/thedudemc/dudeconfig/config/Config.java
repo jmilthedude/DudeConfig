@@ -5,8 +5,13 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
+/**
+ * Extend from this class to create your own config files. Each field shall be a config option and must be annotated
+ * with {@link Expose} if you wish to write the value to the config file.
+ */
 public abstract class Config {
 
     private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
@@ -33,7 +38,17 @@ public abstract class Config {
      *
      * @return default instance of this config.
      */
-    protected abstract Config getDefault();
+    private Config getDefault() {
+        Class<?> clazz = this.getClass();
+        try {
+            Config config = (Config) clazz.getDeclaredConstructor().newInstance();
+            config.reset();
+            return config;
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     /**
      * This must be executed when a change is made to the config to ensure that
@@ -43,6 +58,9 @@ public abstract class Config {
         this.isDirty = true;
     }
 
+    /**
+     * Creates the config file if one does not exist.
+     */
     private void generate() {
         this.reset();
 
@@ -53,14 +71,32 @@ public abstract class Config {
         }
     }
 
+    /**
+     * Convenience method used to create the path to this specific config file.
+     *
+     * @return the config file.
+     */
     private File getConfigFile() {
         return new File(this.rootDir, this.getName() + ".json");
     }
 
+    /**
+     * Set the root directory of this config file based on the registry root dir value.
+     *
+     * @param rootDir directory which to store this config file.
+     */
     protected void setRootDirectory(File rootDir) {
         this.rootDir = rootDir;
     }
 
+    /**
+     * This is the entry point of a config file. Use this to instantiate your own config object.
+     * <p>
+     * Reads an existing json file and creates the config object. If no json file exists, one is then created
+     * based on the default values in {@link Config#reset()}.
+     *
+     * @return a new config file.
+     */
     public Config read() {
         try {
             Config config = GSON.fromJson(new FileReader(this.getConfigFile()), this.getClass());

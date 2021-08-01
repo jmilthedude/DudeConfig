@@ -19,13 +19,6 @@ public class TestConfig extends Config {
     }
 
     @Override
-    protected Config getDefault() {
-        TestConfig config = new TestConfig();
-        config.reset();
-        return config;
-    }
-
-    @Override
     public void reset() {
         someString = "Hello!";
 
