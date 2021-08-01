@@ -13,12 +13,32 @@ public abstract class Config {
     private boolean isDirty;
     private File rootDir;
 
+    /**
+     * This is the name of the file for the config.
+     *
+     * @return The name of the config file.
+     */
     protected abstract String getName();
 
+    /**
+     * Set the default values for the fields in your Config class.
+     */
     protected abstract void reset();
 
+    /**
+     * This will return the defaults for comparing with stored JSON objects
+     * which have have missing options. If a field is found to be null, it will
+     * check this default instance (using {@link Config#reset()}) and add the
+     * default values.
+     *
+     * @return default instance of this config.
+     */
     protected abstract Config getDefault();
 
+    /**
+     * This must be executed when a change is made to the config to ensure that
+     * new value is written to the file.
+     */
     public void markDirty() {
         this.isDirty = true;
     }
@@ -63,6 +83,12 @@ public abstract class Config {
         return this;
     }
 
+    /**
+     * Uses reflection to replace missing values if they are null.
+     *
+     * @param config        the config read from file.
+     * @param defaultConfig a default config generated via {@link Config#reset()}
+     */
     private void setMissingDefaults(Config config, Config defaultConfig) {
         Arrays.stream(config.getClass().getDeclaredFields()).forEach(field -> {
             try {
@@ -92,6 +118,9 @@ public abstract class Config {
         writer.close();
     }
 
+    /**
+     * Called to save this config file when {@link Config#markDirty()} has been set.
+     */
     public void save() {
         if (this.isDirty) {
             try {
